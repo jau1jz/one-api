@@ -5,22 +5,23 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"one-api/common"
+	"one-api/common/config"
+	"one-api/common/logger"
 	"os"
 	"strings"
 )
 
-func SetRouter(router *gin.Engine, buildFS embed.FS, indexPage []byte) {
+func SetRouter(router *gin.Engine, buildFS embed.FS) {
 	SetApiRouter(router)
 	SetDashboardRouter(router)
 	SetRelayRouter(router)
 	frontendBaseUrl := os.Getenv("FRONTEND_BASE_URL")
-	if common.IsMasterNode && frontendBaseUrl != "" {
+	if config.IsMasterNode && frontendBaseUrl != "" {
 		frontendBaseUrl = ""
-		common.SysLog("FRONTEND_BASE_URL is ignored on master node")
+		logger.SysLog("FRONTEND_BASE_URL is ignored on master node")
 	}
 	if frontendBaseUrl == "" {
-		SetWebRouter(router, buildFS, indexPage)
+		SetWebRouter(router, buildFS)
 	} else {
 		frontendBaseUrl = strings.TrimSuffix(frontendBaseUrl, "/")
 		router.NoRoute(func(c *gin.Context) {

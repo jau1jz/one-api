@@ -1,13 +1,16 @@
 package common
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"one-api/common/logger"
+)
 
 var SaleRatio = map[string]float64{}
 
 func SaleRatio2JSONString() string {
 	jsonBytes, err := json.Marshal(SaleRatio)
 	if err != nil {
-		SysError("error marshalling model ratio: " + err.Error())
+		logger.SysError("error marshalling model ratio: " + err.Error())
 	}
 	return string(jsonBytes)
 }

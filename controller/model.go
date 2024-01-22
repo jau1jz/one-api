@@ -2,8 +2,8 @@ package controller
 
 import (
 	"fmt"
-
 	"github.com/gin-gonic/gin"
+	"one-api/relay/channel/openai"
 )
 
 // https://platform.openai.com/docs/api-reference/models/list
@@ -343,6 +343,24 @@ func init() {
 			Parent:     nil,
 		},
 		{
+			Id:         "davinci-002",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "openai",
+			Permission: permission,
+			Root:       "davinci-002",
+			Parent:     nil,
+		},
+		{
+			Id:         "babbage-002",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "openai",
+			Permission: permission,
+			Root:       "babbage-002",
+			Parent:     nil,
+		},
+		{
 			Id:         "claude-instant-1",
 			Object:     "model",
 			Created:    1677649963,
@@ -418,7 +436,7 @@ func init() {
 			Id:         "PaLM-2",
 			Object:     "model",
 			Created:    1677649963,
-			OwnedBy:    "google",
+			OwnedBy:    "google palm",
 			Permission: permission,
 			Root:       "PaLM-2",
 			Parent:     nil,
@@ -427,9 +445,18 @@ func init() {
 			Id:         "gemini-pro",
 			Object:     "model",
 			Created:    1677649963,
-			OwnedBy:    "google",
+			OwnedBy:    "google gemini",
 			Permission: permission,
 			Root:       "gemini-pro",
+			Parent:     nil,
+		},
+		{
+			Id:         "gemini-pro-vision",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "google gemini",
+			Permission: permission,
+			Root:       "gemini-pro-vision",
 			Parent:     nil,
 		},
 		{
@@ -586,14 +613,14 @@ func RetrieveModel(c *gin.Context) {
 	if model, ok := openAIModelsMap[modelId]; ok {
 		c.JSON(200, model)
 	} else {
-		openAIError := OpenAIError{
+		Error := openai.Error{
 			Message: fmt.Sprintf("The model '%s' does not exist", modelId),
 			Type:    "invalid_request_error",
 			Param:   "model",
 			Code:    "model_not_found",
 		}
 		c.JSON(200, gin.H{
-			"error": openAIError,
+			"error": Error,
 		})
 	}
 }

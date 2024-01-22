@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"one-api/common/config"
+	"one-api/common/logger"
 	"os"
 	"path/filepath"
 )
@@ -36,7 +38,11 @@ func init() {
 	}
 
 	if os.Getenv("SESSION_SECRET") != "" {
-		SessionSecret = os.Getenv("SESSION_SECRET")
+		if os.Getenv("SESSION_SECRET") == "random_string" {
+			logger.SysError("SESSION_SECRET is set to an example value, please change it to a random string.")
+		} else {
+			config.SessionSecret = os.Getenv("SESSION_SECRET")
+		}
 	}
 	if os.Getenv("SQLITE_PATH") != "" {
 		SQLitePath = os.Getenv("SQLITE_PATH")
@@ -53,5 +59,6 @@ func init() {
 				log.Fatal(err)
 			}
 		}
+		logger.LogDir = *LogDir
 	}
 }
