@@ -23,7 +23,8 @@ const LOG_OPTIONS = [
   { key: '1', text: '充值', value: 1 },
   { key: '2', text: '消费', value: 2 },
   { key: '3', text: '管理', value: 3 },
-  { key: '4', text: '系统', value: 4 }
+  { key: '4', text: '系统', value: 4 },
+  { key: '5', text: '分销', value: 5 },
 ];
 
 function renderType(type) {
@@ -37,7 +38,7 @@ function renderType(type) {
     case 4:
       return <Label basic color='purple'> 系统 </Label>;
     case 5:
-      return <Label basic color='green'> 分销 </Label>;
+      return <Label basic color='blue'> 分销 </Label>;
     default:
       return <Label basic color='black'> 未知 </Label>;
   }
