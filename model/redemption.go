@@ -60,12 +60,13 @@ func Redeem(key string, userId int) (quota int, err error) {
 	if err != nil {
 		return 0, err
 	}
-	extendQuota := common.GetSaleRatio(user.Group)
+	extendQuota := 0
 	err = DB.Transaction(func(tx *gorm.DB) error {
 		err := tx.Set("gorm:query_option", "FOR UPDATE").Where(keyCol+" = ?", key).First(redemption).Error
 		if err != nil {
 			return errors.New("无效的兑换码")
 		}
+		extendQuota = int(common.GetSaleRatio(user.Group) * float64(redemption.Quota))
 		if redemption.Status != common.RedemptionCodeStatusEnabled {
 			return errors.New("该兑换码已被使用")
 		}
