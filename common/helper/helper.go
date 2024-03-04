@@ -3,11 +3,11 @@ package helper
 import (
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/songquanpeng/one-api/common/logger"
 	"html/template"
 	"log"
 	"math/rand"
 	"net"
-	"one-api/common/logger"
 	"os"
 	"os/exec"
 	"runtime"
@@ -107,13 +107,13 @@ func Seconds2Time(num int) (time string) {
 }
 
 func Interface2String(inter interface{}) string {
-	switch inter.(type) {
+	switch inter := inter.(type) {
 	case string:
-		return inter.(string)
+		return inter
 	case int:
-		return fmt.Sprintf("%d", inter.(int))
+		return fmt.Sprintf("%d", inter)
 	case float64:
-		return fmt.Sprintf("%f", inter.(float64))
+		return fmt.Sprintf("%f", inter)
 	}
 	return "Not Implemented"
 }
@@ -137,6 +137,7 @@ func GetUUID() string {
 }
 
 const keyChars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const keyNumbers = "0123456789"
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
@@ -164,6 +165,15 @@ func GetRandomString(length int) string {
 	key := make([]byte, length)
 	for i := 0; i < length; i++ {
 		key[i] = keyChars[rand.Intn(len(keyChars))]
+	}
+	return string(key)
+}
+
+func GetRandomNumberString(length int) string {
+	rand.Seed(time.Now().UnixNano())
+	key := make([]byte, length)
+	for i := 0; i < length; i++ {
+		key[i] = keyNumbers[rand.Intn(len(keyNumbers))]
 	}
 	return string(key)
 }

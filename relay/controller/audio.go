@@ -8,19 +8,20 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/model"
+	"github.com/songquanpeng/one-api/relay/channel/openai"
+	"github.com/songquanpeng/one-api/relay/constant"
+	relaymodel "github.com/songquanpeng/one-api/relay/model"
+	"github.com/songquanpeng/one-api/relay/util"
 	"io"
 	"net/http"
-	"one-api/common"
-	"one-api/common/config"
-	"one-api/common/logger"
-	"one-api/model"
-	"one-api/relay/channel/openai"
-	"one-api/relay/constant"
-	"one-api/relay/util"
 	"strings"
 )
 
-func RelayAudioHelper(c *gin.Context, relayMode int) *openai.ErrorWithStatusCode {
+func RelayAudioHelper(c *gin.Context, relayMode int) *relaymodel.ErrorWithStatusCode {
 	audioModel := "whisper-1"
 
 	tokenId := c.GetInt("token_id")

@@ -29,6 +29,12 @@ export const CHANNEL_OPTIONS = {
     value: 24,
     color: 'orange'
   },
+  28: {
+    key: 28,
+    text: 'Mistral AI',
+    value: 28,
+    color: 'orange'
+  },
   15: {
     key: 15,
     text: '百度文心千帆',
@@ -59,10 +65,28 @@ export const CHANNEL_OPTIONS = {
     value: 19,
     color: 'default'
   },
+  25: {
+    key: 25,
+    text: 'Moonshot AI',
+    value: 19,
+    color: 'default'
+  },
   23: {
     key: 23,
     text: '腾讯混元',
     value: 23,
+    color: 'default'
+  },
+  26: {
+    key: 26,
+    text: '百川大模型',
+    value: 26,
+    color: 'default'
+  },
+  27: {
+    key: 27,
+    text: 'MiniMax',
+    value: 27,
     color: 'default'
   },
   8: {
