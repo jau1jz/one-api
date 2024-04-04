@@ -1,9 +1,11 @@
 package middleware
 
 import (
+	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/blacklist"
 	"github.com/songquanpeng/one-api/model"
 	"net/http"
 	"strings"
@@ -42,11 +44,14 @@ func authHelper(c *gin.Context, minRole int) {
 			return
 		}
 	}
-	if status.(int) == common.UserStatusDisabled {
+	if status.(int) == common.UserStatusDisabled || blacklist.IsUserBanned(id.(int)) {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": "用户已被封禁",
 		})
+		session := sessions.Default(c)
+		session.Clear()
+		_ = session.Save()
 		c.Abort()
 		return
 	}
@@ -99,9 +104,22 @@ func TokenAuth() func(c *gin.Context) {
 			abortWithMessage(c, http.StatusInternalServerError, err.Error())
 			return
 		}
-		if !userEnabled {
+		if !userEnabled || blacklist.IsUserBanned(token.UserId) {
 			abortWithMessage(c, http.StatusForbidden, "用户已被封禁")
 			return
+		}
+		requestModel, err := getRequestModel(c)
+		if err != nil {
+			abortWithMessage(c, http.StatusBadRequest, err.Error())
+			return
+		}
+		c.Set("request_model", requestModel)
+		if token.Models != nil && *token.Models != "" {
+			c.Set("available_models", *token.Models)
+			if requestModel != "" && !isModelInList(requestModel, *token.Models) {
+				abortWithMessage(c, http.StatusForbidden, fmt.Sprintf("该令牌无权使用模型：%s", requestModel))
+				return
+			}
 		}
 		c.Set("id", token.UserId)
 		c.Set("token_id", token.Id)

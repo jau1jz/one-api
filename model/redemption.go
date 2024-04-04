@@ -14,7 +14,7 @@ type Redemption struct {
 	Key          string `json:"key" gorm:"type:char(32);uniqueIndex"`
 	Status       int    `json:"status" gorm:"default:1"`
 	Name         string `json:"name" gorm:"index"`
-	Quota        int    `json:"quota" gorm:"default:100"`
+	Quota        int64  `json:"quota" gorm:"bigint;default:100"`
 	CreatedTime  int64  `json:"created_time" gorm:"bigint"`
 	RedeemedTime int64  `json:"redeemed_time" gorm:"bigint"`
 	Count        int    `json:"count" gorm:"-:all"` // only for api request
@@ -42,7 +42,7 @@ func GetRedemptionById(id int) (*Redemption, error) {
 	return &redemption, err
 }
 
-func Redeem(key string, userId int) (quota int, err error) {
+func Redeem(key string, userId int) (quota int64, err error) {
 	if key == "" {
 		return 0, errors.New("未提供兑换码")
 	}
@@ -91,7 +91,7 @@ func Redeem(key string, userId int) (quota int, err error) {
 	}
 	RecordLog(userId, LogTypeTopup, fmt.Sprintf("通过兑换码充值 %s", common.LogQuota(redemption.Quota)))
 	if user.InviterId != 0 && extendQuota > 0 {
-		RecordLog(user.InviterId, LogTypeSale, fmt.Sprintf("通过分销赠送 %s", common.LogQuota(int(float64(redemption.Quota)*common.GetSaleRatio(user.Group)))))
+		RecordLog(user.InviterId, LogTypeSale, fmt.Sprintf("通过分销赠送 %s", common.LogQuota(int64(float64(redemption.Quota)*common.GetSaleRatio(user.Group)))))
 	}
 	return redemption.Quota, nil
 }
