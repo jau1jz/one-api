@@ -75,7 +75,7 @@ func (a *Adaptor) DoResponseV4(c *gin.Context, resp *http.Response, meta *util.R
 	if meta.IsStream {
 		err, _, usage = openai.StreamHandler(c, resp, meta.Mode)
 	} else {
-		err, usage = openai.Handler(c, resp, meta.PromptTokens, meta.ActualModelName)
+		err, usage = openai.Handler(c, resp, 0, meta.PromptTokens, meta.ActualModelName)
 	}
 	return
 }

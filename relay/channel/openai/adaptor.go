@@ -1,10 +1,14 @@
 package openai
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/songquanpeng/one-api/common"
+	"github.com/songquanpeng/one-api/common/logger"
+	orm "github.com/songquanpeng/one-api/model"
 	"github.com/songquanpeng/one-api/relay/channel"
 	"github.com/songquanpeng/one-api/relay/channel/minimax"
 	"github.com/songquanpeng/one-api/relay/model"
@@ -64,18 +68,40 @@ func (a *Adaptor) ConvertRequest(c *gin.Context, relayMode int, request *model.G
 }
 
 func (a *Adaptor) DoRequest(c *gin.Context, meta *util.RelayMeta, requestBody io.Reader) (*http.Response, error) {
-	return channel.DoRequestHelper(a, c, meta, requestBody)
+	cp, err := io.ReadAll(requestBody)
+	if err != nil {
+		return nil, err
+	}
+	var request TextRequest
+	err = json.Unmarshal(cp, &request)
+	if err == nil {
+		msg := ""
+		for _, v := range request.Messages {
+			if v.Role == "user" {
+				msg, _ = v.Content.(string)
+			}
+		}
+		if msg != "" {
+			meta.ChatLogId = orm.SaveChatLogRequest(c, meta.UserId, msg, request.Model)
+		}
+	} else {
+		logger.Errorf(c, "error when unmarshal request: %s", err)
+	}
+	return channel.DoRequestHelper(a, c, meta, io.NopCloser(bytes.NewReader(cp)))
 }
 
 func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, meta *util.RelayMeta) (usage *model.Usage, err *model.ErrorWithStatusCode) {
 	if meta.IsStream {
 		var responseText string
 		err, responseText, usage = StreamHandler(c, resp, meta.Mode)
+		if len(responseText) > 0 {
+			orm.SaveChatLogResponse(c, meta.ChatLogId, responseText)
+		}
 		if usage == nil {
 			usage = ResponseText2Usage(responseText, meta.ActualModelName, meta.PromptTokens)
 		}
 	} else {
-		err, usage = Handler(c, resp, meta.PromptTokens, meta.ActualModelName)
+		err, usage = Handler(c, resp, meta.ChatLogId, meta.PromptTokens, meta.ActualModelName)
 	}
 	return
 }

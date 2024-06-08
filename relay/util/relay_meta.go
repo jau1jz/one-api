@@ -26,6 +26,7 @@ type RelayMeta struct {
 	ActualModelName string
 	RequestURLPath  string
 	PromptTokens    int // only for DoResponse
+	ChatLogId       int
 }
 
 func GetRelayMeta(c *gin.Context) *RelayMeta {
